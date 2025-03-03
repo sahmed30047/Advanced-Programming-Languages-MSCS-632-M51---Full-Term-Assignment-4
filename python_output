@@ -1,0 +1,58 @@
+import random
+
+# Data structure to store employee data
+employee_data = {}
+
+# Getting employee names and their preferred shifts
+def get_employee_input():
+    num_employees = int(input("Enter the number of employees: "))
+    for _ in range(num_employees):
+        name = input("Enter employee name: ")
+        shifts = {}
+        for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
+            shift = input(f"Enter shift for {day} (morning, afternoon, evening): ")
+            shifts[day] = shift
+        employee_data[name] = shifts
+
+# Call the function to input employee data
+get_employee_input()
+
+# Schedule dictionary to track shifts
+schedule = {day: {'morning': [], 'afternoon': [], 'evening': []} for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]}
+
+# Assign shifts to employees
+def assign_shifts():
+    # Tracking number of shifts worked by each employee
+    employee_shifts = {name: 0 for name in employee_data}
+    
+    # Assign shifts based on preferences
+    for day in schedule:
+        for shift in schedule[day]:
+            for name, shifts in employee_data.items():
+                if employee_shifts[name] < 5 and shifts[day] == shift:
+                    if len(schedule[day][shift]) < 2:
+                        schedule[day][shift].append(name)
+                        employee_shifts[name] += 1
+                        break
+    
+    # Ensure at least 2 employees per shift
+    for day in schedule:
+        for shift in schedule[day]:
+            if len(schedule[day][shift]) < 2:
+                # Fill empty spots with employees who haven't worked 5 shifts
+                for name, shifts in employee_data.items():
+                    if employee_shifts[name] < 5 and name not in schedule[day][shift]:
+                        schedule[day][shift].append(name)
+                        employee_shifts[name] += 1
+                        if len(schedule[day][shift]) >= 2:
+                            break
+
+# Call function to assign shifts
+assign_shifts()
+
+# Output the final schedule
+print("\nFinal Schedule:")
+for day in schedule:
+    print(f"{day}:")
+    for shift in schedule[day]:
+        print(f"  {shift.capitalize()}: {', '.join(schedule[day][shift])}")
